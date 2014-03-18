@@ -1,0 +1,43 @@
+<div ng-controller="EggplantCtrl" class="row">
+  <div class="alert alert-danger alert-dismissable" ng-show="warning">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <strong>Внимание!</strong>
+    <br/>Неопознанный сотрудник.
+  </div>
+  <div class="col-sm-6">
+    <h3>Пришли сотрудники</h3>
+    <table class="table table-condensed table-striped table-hover">
+      <tbody>
+      <tr ng-repeat="comer in comers">
+        <td>
+          <img data-ng-src="{{comer.foto}}" height="66"/>
+        </td>
+        <td>
+          <ul>
+            <li>{{comer.fio}}</li>
+            <li>{{ comer.edate.substring(0, 10) }} {{ comer.edate.substring(11, 19) }}</li>
+          </ul>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="col-sm-6">
+    <h3>Ушли сотрудники</h3>
+    <table class="table table-condensed table-striped table-hover">
+      <tbody>
+      <tr ng-repeat="leaver in leavers">
+        <td>
+          <img data-ng-src="{{leaver.foto}}" height="66"/>
+        </td>
+        <td>
+          <ul>
+            <li>{{leaver.fio}}</li>
+            <li>{{ leaver.edate.substring(0, 10) }} {{ leaver.edate.substring(11, 19) }}</li>
+          </ul>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

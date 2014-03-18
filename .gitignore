@@ -1,0 +1,5 @@
+.idea
+node_modules
+config.json
+config.development.json
+log.txt

@@ -21,8 +21,7 @@ var server = http.createServer(app);
 if (app.get('env') === 'development') {
   nconf.argv().env().file({ file: 'config.development.json' });
   app.use(express.errorHandler());
-}
-if (app.get('env') === 'production') {
+} else {
   nconf.argv().env().file({ file: 'config.json' });
 }
 

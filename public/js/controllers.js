@@ -10,28 +10,44 @@ function getBase64(str) {
   return btoa(String.fromCharCode.apply(null, str.replace(/\r|\n/g, "").replace(/([\da-fA-F]{2}) ?/g, "0x$1 ").replace(/ +$/, "").split(" ")));
 }
 
-function EggplantCtrl($scope, $http, $route, $timeout, socket) {
+function processFoto(data) {
+  for (var r in data) {
+    data[r].foto = "data:image/jpeg;base64," + getBase64(toHexString(data[r].foto));
+  }
+  return data;
+}
+
+
+function playSound(soundname) {
+  var sound = document.getElementById( soundname );
+  sound.play();
+}
+
+function EggplantCtrl($scope, $http, $timeout, socket) {
   $http.get('/api/comers/').
     success(function(data) {
-      for (var r in data) {
-        data[r].foto = "data:image/jpeg;base64," + getBase64(toHexString(data[r].foto));
-      }
-      $scope.comers = data;
+      $scope.comers = processFoto(data);
     });
   $http.get('/api/leavers/').
     success(function(data) {
-      for (var r in data) {
-        data[r].foto = "data:image/jpeg;base64," + getBase64(toHexString(data[r].foto));
-      }
-      $scope.leavers = data;
+      $scope.leavers = processFoto(data);
     });
   socket.on('beep', function () {
     $scope.warning = 'true';
+    playSound('beep');
     $timeout(function() {
       $scope.warning = 'false';
     }, 3000);
   });
   socket.on('pass', function () {
-    $route.reload();
+    playSound('pass');
+    $http.get('/api/comers/').
+      success(function(data) {
+        $scope.comers = processFoto(data);
+      });
+    $http.get('/api/leavers/').
+      success(function(data) {
+        $scope.leavers = processFoto(data);
+      });
   });
 }

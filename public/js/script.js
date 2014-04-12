@@ -1,8 +1,8 @@
-var socket = io.connect('/');
+var socket = io.connect();
 
 function playSound(soundname) {
-  var thissound = document.getElementById( soundname );
-  thissound.play();
+  var sound = document.getElementById( soundname );
+  sound.play();
 }
 
 socket.on('beep', function () {

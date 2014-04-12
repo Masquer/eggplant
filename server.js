@@ -2,6 +2,7 @@ var express = require('express');
 var http = require('http');
 var path = require('path');
 var nconf = require('nconf');
+nconf.argv().env().file({ file: 'config.json' });
 var Sequelize = require("sequelize");
 var socketio = require('socket.io');
 var SerialPort = require("serialport");
@@ -18,12 +19,6 @@ var api = require('./routes/api');
 
 var app = module.exports = express();
 var server = http.createServer(app);
-if (app.get('env') === 'development') {
-  nconf.argv().env().file({ file: 'config.development.json' });
-  app.use(express.errorHandler());
-} else {
-  nconf.argv().env().file({ file: 'config.json' });
-}
 
 app.set('port', process.env.PORT || nconf.get('port'));
 app.set('views', __dirname + '/views');
@@ -38,10 +33,26 @@ app.use(express.session({ secret: nconf.get('sessionKey'), maxAge: new Date(Date
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(app.router);
 
+if (app.get('env') === 'development') {
+  /*setTimeout(function() {
+    setInterval(function() {
+      var barcode = {
+        left: '',
+        right: '',
+        event: Math.floor((Math.random()*2)+2)
+      };
+      var i = Math.floor((Math.random()*global.barcodes.length));
+      barcode.left = global.barcodes[i].barcode;
+      if (Math.random() < 0.1) barcode.left = 'none';
+      journalWrite(barcode);
+    }, 1*1000);
+  }, 10000);*/
+  app.use(express.errorHandler());
+}
 
 var io = socketio.listen(server);
-var socket = io.sockets.on('connection', function(callback) {
-  callback;
+io.sockets.on('connection', function() {
+  console.log('socket.io client connected');
 });
 
 console.log( nconf.get('mysql').database );
@@ -55,9 +66,15 @@ sequelize
   .authenticate()
   .complete(function(err) {
     if (!!err) {
-      console.log('unable to connect to the database:', err)
+      console.log('unable to connect to the database:', err);
     } else {
-      console.log('mysql database сonnected')
+      console.log('mysql database сonnected');
+      var sql = "SELECT barcode FROM workers";
+      sequelize
+        .query(sql, null, { raw: true })
+        .success(function(result) {
+          global.barcodes = result;
+        });
     }
   });
 
@@ -69,10 +86,14 @@ if (nconf.get('comI')) {
     var barcode = { left: '', right: '', event: '' };
     serialPortI.on('data', function(data) {
       data = data.toString();
-      if (data.charAt(0) == 'I') barcode.left = data.substr(1);
-      else {
-        barcode.right = data;
+      if (data.charAt(0) == 'I') {
+        barcode.left = data.substr(1);
         barcode.event = 2;
+      } else if (data.charAt(0) == 'O') {
+        barcode.left = data.substr(1);
+        barcode.event = 3;
+      } else {
+        barcode.right = data.substr(0,6);
         journalWrite(barcode);
       }
     });
@@ -84,17 +105,21 @@ if (nconf.get('comO')) {
     var barcode = { left: '', right: '', event: '' };
     serialPortO.on('data', function(data) {
       data = data.toString();
-      if (data.charAt(0) == 'O') barcode.left = data.substr(1);
-      else {
-        barcode.right = data.substr(0,6);
+      if (data.charAt(0) == 'I') {
+        barcode.left = data.substr(1);
+        barcode.event = 2;
+      } else if (data.charAt(0) == 'O') {
+        barcode.left = data.substr(1);
         barcode.event = 3;
+      } else {
+        barcode.right = data.substr(0,6);
         journalWrite(barcode);
       }
     });
   });
 }
 function journalWrite(barcode) {
-  id = (barcode.left + barcode.right);
+  var id = (barcode.left + barcode.right);
   var sql = "SELECT idWorker FROM workers WHERE barCode=? LIMIT 1";
   sequelize
     .query(sql, null, { raw: true }, [ id ])
@@ -110,11 +135,11 @@ function journalWrite(barcode) {
         sequelize
           .query(sql, null, { raw: true }, [ record ])
           .success(function() {
-            socket.emit('pass');
+            io.sockets.emit('pass');
           });
       } else {
         process.stdout.write('\x07');
-        socket.emit('beep');
+        io.sockets.emit('beep');
       }
     });
 }

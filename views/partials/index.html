@@ -4,10 +4,23 @@
     <strong>Внимание!</strong>
     <br/>Неопознанный сотрудник.
   </div>
+  <div class="alert alert-info alert-dismissable" ng-show="pass">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <table class="table table-condensed">
+      <tr>
+        <td>
+          <img data-ng-src="{{lastone.foto}}" height="132"/>
+        </td>
+        <td>
+          <h1>{{lastone.fio}}</h1>
+          <h1>{{ lastone.edate.substring(0, 10) }} {{ lastone.edate.substring(11, 19) }}</h1>
+        </td>
+      </tr>
+    </table>
+  </div>
   <div class="col-sm-6">
     <h3>Пришли сотрудники</h3>
     <table class="table table-condensed table-striped table-hover">
-      <tbody>
       <tr ng-repeat="comer in comers">
         <td>
           <img data-ng-src="{{comer.foto}}" height="66"/>
@@ -19,7 +32,6 @@
           </ul>
         </td>
       </tr>
-      </tbody>
     </table>
   </div>
   <div class="col-sm-6">

@@ -17,7 +17,6 @@ function processFoto(data) {
   return data;
 }
 
-
 function playSound(soundname) {
   var sound = document.getElementById( soundname );
   sound.play();
@@ -33,14 +32,22 @@ function EggplantCtrl($scope, $http, $timeout, socket) {
       $scope.leavers = processFoto(data);
     });
   socket.on('beep', function () {
-    $scope.warning = 'true';
     playSound('beep');
+    $scope.warning = 'true';
     $timeout(function() {
       $scope.warning = 'false';
     }, 3000);
   });
   socket.on('pass', function () {
     playSound('pass');
+    $http.get('/api/lastone/').
+      success(function(data) {
+        $scope.lastone = processFoto(data)[0];
+        $scope.pass = 'true';
+        $timeout(function() {
+          $scope.pass = 'false';
+        }, 3000);
+      });
     $http.get('/api/comers/').
       success(function(data) {
         $scope.comers = processFoto(data);

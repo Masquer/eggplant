@@ -1,22 +1,31 @@
 exports.comers = function(req, res) {
-  var id = 1; //CAST(foto AS CHAR(10000) CHARACTER SET utf8)
   var sql = "SELECT idJournal, event, edate, fio, foto FROM journal " +
     "INNER JOIN workers ON workers.idWorker = journal.worker " +
     "WHERE event=2 ORDER BY edate DESC, idJournal DESC LIMIT 10";
   sequelize
-    .query(sql, null, { raw: true }, [ id ])
+    .query(sql, null, { raw: true }, [])
     .success(function(result) {
       res.json(result);
     });
 };
 
 exports.leavers = function(req, res) {
-  var id = 1;
   var sql = "SELECT idJournal, event, edate, fio, foto FROM journal " +
     "INNER JOIN workers ON workers.idWorker = journal.worker " +
     "WHERE event=3 ORDER BY edate DESC, idJournal DESC LIMIT 10";
   sequelize
-    .query(sql, null, { raw: true }, [ id ])
+    .query(sql, null, { raw: true }, [])
+    .success(function(result) {
+      res.json(result);
+    });
+};
+
+exports.lastone = function(req, res) {
+  var sql = "SELECT idJournal, event, edate, fio, foto FROM journal " +
+    "INNER JOIN workers ON workers.idWorker = journal.worker " +
+    "ORDER BY edate DESC, idJournal DESC LIMIT 1";
+  sequelize
+    .query(sql, null, { raw: true }, [])
     .success(function(result) {
       res.json(result);
     });

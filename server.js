@@ -34,7 +34,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(app.router);
 
 if (app.get('env') === 'development') {
-  /*setTimeout(function() {
+  setTimeout(function() {
     setInterval(function() {
       var barcode = {
         left: '',
@@ -44,9 +44,9 @@ if (app.get('env') === 'development') {
       var i = Math.floor((Math.random()*global.barcodes.length));
       barcode.left = global.barcodes[i].barcode;
       if (Math.random() < 0.1) barcode.left = 'none';
-      journalWrite(barcode);
-    }, 1*1000);
-  }, 10000);*/
+      //journalWrite(barcode);
+    }, 5000);
+  }, 10000);
   app.use(express.errorHandler());
 }
 
@@ -149,6 +149,7 @@ app.get('/partials/:name', routes.partial);
 
 app.get('/api/comers', api.comers);
 app.get('/api/leavers', api.leavers);
+app.get('/api/lastone', api.lastone);
 
 app.get('*', routes.index);
 
